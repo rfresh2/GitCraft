@@ -1,7 +1,9 @@
 package com.github.winplay02.gitcraft
 
 import com.github.winplay02.gitcraft.mappings.MappingFlavour
+import com.github.winplay02.gitcraft.types.RepoConfig
 import com.github.winplay02.gitcraft.util.MiscHelper
+import com.google.gson.GsonBuilder
 import groovy.cli.picocli.CliBuilder
 import groovy.cli.picocli.OptionAccessor
 
@@ -14,6 +16,8 @@ class GitCraftCli {
 		cli_args.setUsage("gradlew run --args=\"[Options]\"");
 		cli_args.setHeader("Options:");
 		cli_args.setFooter("If you want to decompile versions which are not part of the default minecraft meta, put the JSON files of these versions (e.g. 1_16_combat-0.json) into the \"extra-versions\" directory");
+		cli_args._(longOpt: 'repo-config', args: 1, argName: 'path', type: Path,
+			'Use Configuration with JSON instead of CLI args');
 		cli_args._(longOpt: 'only-version', args: -2 /*CliBuilder.COMMONS_CLI_UNLIMITED_VALUES*/, valueSeparator: ',', argName:
 			'version', 'Specify the only version(s) to decompile. The repository be stored in minecraft-repo-<version>-<version>-.... The normal repository will not be touched. --only-version will take precedence over --min-version.');
 		cli_args._(longOpt: 'min-version', args: 1, argName:
@@ -60,67 +64,85 @@ class GitCraftCli {
 		GitCraftConfig config = GitCraftConfig.defaultConfig();
 		CliBuilder cli_args = createCli();
 		OptionAccessor cli_args_parsed = cli_args.parse(args)
-		config.loadAssets = !cli_args_parsed.hasOption("no-assets");
-		config.loadAssetsExtern = !cli_args_parsed.hasOption("no-external-assets");
-		config.verifyChecksums = !cli_args_parsed.hasOption("no-verify");
-		config.skipNonLinear = cli_args_parsed.hasOption("skip-nonlinear");
-		config.noRepo = cli_args_parsed.hasOption("no-repo");
-		config.loadIntegratedDatapack = !cli_args_parsed.hasOption("no-datapack");
-		config.readableNbt = !cli_args_parsed.hasOption("no-datagen-snbt");
-		config.loadDatagenRegistry = !cli_args_parsed.hasOption("no-datagen-report");
-		config.refreshDecompilation = cli_args_parsed.hasOption("refresh");
-        config.createVersionBranches = cli_args_parsed.hasOption("create-version-branches");
-        config.createStableVersionBranches = cli_args_parsed.hasOption("create-stable-version-branches");
-		config.sortJsonObjects = cli_args_parsed.hasOption("sort-json");
-		if (cli_args_parsed.hasOption("help")) {
-			cli_args.usage();
-			return null;
-		}
-		if (cli_args_parsed.hasOption("refresh-only-version")) {
-			String[] subjectVersion = cli_args_parsed.'refresh-only-versions';
-			config.refreshOnlyVersion = subjectVersion;
-		}
-		if (cli_args_parsed.hasOption("refresh-min-version")) {
-			String subjectVersion = cli_args_parsed.'refresh-min-version';
-			config.refreshMinVersion = subjectVersion;
-		}
-		if (cli_args_parsed.hasOption("refresh-max-version")) {
-			String subjectVersion = cli_args_parsed.'refresh-max-version';
-			config.refreshMaxVersion = subjectVersion;
-		}
-		if (cli_args_parsed.hasOption("refresh-only-version") || cli_args_parsed.hasOption("refresh-min-version") || cli_args_parsed.hasOption("refresh-max-version")) {
-			config.refreshDecompilation = true;
-		}
-		if (cli_args_parsed.hasOption("only-version")) {
-			String[] subjectVersion = cli_args_parsed.'only-versions';
-			config.onlyVersion = subjectVersion;
-		}
-		if (cli_args_parsed.hasOption("min-version")) {
-			String subjectVersion = cli_args_parsed.'min-version';
-			config.minVersion = subjectVersion;
-		}
-		if (cli_args_parsed.hasOption("max-version")) {
-			String subjectVersion = cli_args_parsed.'max-version';
-			config.maxVersion = subjectVersion;
-		}
-		if (cli_args_parsed.hasOption("exclude-version")) {
-			String[] subjectVersion = cli_args_parsed.'exclude-versions';
-			config.excludedVersion = subjectVersion;
-		}
-		config.usedMapping = cli_args_parsed.'mappings';
-		if (cli_args_parsed.hasOption("fallback-mappings")) {
-			MappingFlavour[] fallbackMappings = cli_args_parsed.'fallback-mappingss';
-			config.fallbackMappings = fallbackMappings;
-		}
-		config.onlyStableReleases = cli_args_parsed.hasOption("only-stable");
-		config.onlySnapshots = cli_args_parsed.hasOption("only-snapshot");
-		if (cli_args_parsed.hasOption("override-repo-target")) {
-			Path repositoryPath = cli_args_parsed.'override-repo-target';
-			config.overrideRepositoryPath = repositoryPath.toAbsolutePath();
-		}
-		/// Validate parameters (and combinations), which are wrong without looking at any context
-		if (config.onlyStableReleases && config.onlySnapshots) {
-			MiscHelper.panic("ERROR: Excluding both stable releases and snapshots would lead to doing nothing");
+		if (cli_args_parsed.hasOption("repo-config")) {
+			Path repoConfigPath = cli_args_parsed.'repo-config'
+			var gson = new GsonBuilder().create();
+			try (var reader = new FileReader(repoConfigPath.toFile())) {
+				var repoConfig = gson.fromJson(reader, RepoConfig.class)
+				config.createVersionBranches = repoConfig.create_version_branches
+				config.sortJsonObjects = repoConfig.sort_json
+				config.loadAssetsExtern = !repoConfig.no_external_assets
+				config.readableNbt = !repoConfig.no_datagen_snbt
+				config.loadDatagenRegistry = !repoConfig.no_datagen_report
+				config.usedMapping = MappingFlavour.valueOf(repoConfig.mappings.toUpperCase())
+				config.onlyVersion = repoConfig.versions
+				if (repoConfig.override_repo_target != null) {
+					config.overrideRepositoryPath = Path.of(repoConfig.override_repo_target).toAbsolutePath()
+				}
+			}
+		} else {
+			config.loadAssets = !cli_args_parsed.hasOption("no-assets");
+			config.loadAssetsExtern = !cli_args_parsed.hasOption("no-external-assets");
+			config.verifyChecksums = !cli_args_parsed.hasOption("no-verify");
+			config.skipNonLinear = cli_args_parsed.hasOption("skip-nonlinear");
+			config.noRepo = cli_args_parsed.hasOption("no-repo");
+			config.loadIntegratedDatapack = !cli_args_parsed.hasOption("no-datapack");
+			config.readableNbt = !cli_args_parsed.hasOption("no-datagen-snbt");
+			config.loadDatagenRegistry = !cli_args_parsed.hasOption("no-datagen-report");
+			config.refreshDecompilation = cli_args_parsed.hasOption("refresh");
+			config.createVersionBranches = cli_args_parsed.hasOption("create-version-branches");
+			config.createStableVersionBranches = cli_args_parsed.hasOption("create-stable-version-branches");
+			config.sortJsonObjects = cli_args_parsed.hasOption("sort-json");
+			if (cli_args_parsed.hasOption("help")) {
+				cli_args.usage();
+				return null;
+			}
+			if (cli_args_parsed.hasOption("refresh-only-version")) {
+				String[] subjectVersion = cli_args_parsed.'refresh-only-versions';
+				config.refreshOnlyVersion = subjectVersion;
+			}
+			if (cli_args_parsed.hasOption("refresh-min-version")) {
+				String subjectVersion = cli_args_parsed.'refresh-min-version';
+				config.refreshMinVersion = subjectVersion;
+			}
+			if (cli_args_parsed.hasOption("refresh-max-version")) {
+				String subjectVersion = cli_args_parsed.'refresh-max-version';
+				config.refreshMaxVersion = subjectVersion;
+			}
+			if (cli_args_parsed.hasOption("refresh-only-version") || cli_args_parsed.hasOption("refresh-min-version") || cli_args_parsed.hasOption("refresh-max-version")) {
+				config.refreshDecompilation = true;
+			}
+			if (cli_args_parsed.hasOption("only-version")) {
+				String[] subjectVersion = cli_args_parsed.'only-versions';
+				config.onlyVersion = subjectVersion;
+			}
+			if (cli_args_parsed.hasOption("min-version")) {
+				String subjectVersion = cli_args_parsed.'min-version';
+				config.minVersion = subjectVersion;
+			}
+			if (cli_args_parsed.hasOption("max-version")) {
+				String subjectVersion = cli_args_parsed.'max-version';
+				config.maxVersion = subjectVersion;
+			}
+			if (cli_args_parsed.hasOption("exclude-version")) {
+				String[] subjectVersion = cli_args_parsed.'exclude-versions';
+				config.excludedVersion = subjectVersion;
+			}
+			config.usedMapping = cli_args_parsed.'mappings';
+			if (cli_args_parsed.hasOption("fallback-mappings")) {
+				MappingFlavour[] fallbackMappings = cli_args_parsed.'fallback-mappingss';
+				config.fallbackMappings = fallbackMappings;
+			}
+			config.onlyStableReleases = cli_args_parsed.hasOption("only-stable");
+			config.onlySnapshots = cli_args_parsed.hasOption("only-snapshot");
+			if (cli_args_parsed.hasOption("override-repo-target")) {
+				Path repositoryPath = cli_args_parsed.'override-repo-target';
+				config.overrideRepositoryPath = repositoryPath.toAbsolutePath();
+			}
+			/// Validate parameters (and combinations), which are wrong without looking at any context
+			if (config.onlyStableReleases && config.onlySnapshots) {
+				MiscHelper.panic("ERROR: Excluding both stable releases and snapshots would lead to doing nothing");
+			}
 		}
 		/// Print Info
 		config.printConfigInformation();

@@ -1,0 +1,22 @@
+{
+	"create_version_branches": true,
+	"sort_json": true,
+	"no_external_assets": true,
+	"no_datagen_snbt": true,
+	"no_datagen_report": true,
+	"override_repo_target": "E:\\code\\mcSrc",
+	"mappings": "mojmap_parchment",
+	"versions": [
+		"1.19.2",
+		"1.19.4",
+		"1.20.1",
+		"1.20.2",
+		"1.20.4",
+		"1.20.6",
+		"1.21.1",
+		"1.21.3",
+		"1.21.4",
+		"1.21.5",
+		"1.21.7"
+	]
+}
