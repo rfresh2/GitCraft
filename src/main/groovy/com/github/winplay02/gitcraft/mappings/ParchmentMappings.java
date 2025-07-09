@@ -1,9 +1,11 @@
 package com.github.winplay02.gitcraft.mappings;
 
+import com.github.winplay02.gitcraft.GitCraft;
 import com.github.winplay02.gitcraft.GitCraftConfig;
 import com.github.winplay02.gitcraft.pipeline.Step;
 import com.github.winplay02.gitcraft.types.OrderedVersion;
 import com.github.winplay02.gitcraft.util.GitCraftPaths;
+import com.github.winplay02.gitcraft.util.MiscHelper;
 import com.github.winplay02.gitcraft.util.RemoteHelper;
 import com.github.winplay02.gitcraft.util.SerializationHelper;
 import net.fabricmc.loom.api.mappings.layered.MappingsNamespace;
@@ -15,13 +17,10 @@ import net.fabricmc.mappingio.format.MappingFormat;
 import net.fabricmc.mappingio.tree.MemoryMappingTree;
 
 import java.io.IOException;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
+import java.nio.file.*;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.NavigableSet;
 
 public class ParchmentMappings extends Mapping {
 
@@ -63,13 +62,27 @@ public class ParchmentMappings extends Mapping {
 		Step.StepResult downloadResult = null;
 		if (!Files.exists(mappingsFileJson)) {
 			Path mappingsFileJar = GitCraftPaths.MAPPINGS.resolve(String.format("%s-parchment-%s-%s.jar", mcVersion.launcherFriendlyVersionName(), mcVersion.launcherFriendlyVersionName(), parchmentLatestReleaseVersionBuild));
-			downloadResult = RemoteHelper.downloadToFileWithChecksumIfNotExistsNoRetryMaven(
+			try {
+				downloadResult = RemoteHelper.downloadToFileWithChecksumIfNotExistsNoRetryMaven(
 					String.format("https://maven.parchmentmc.org/org/parchmentmc/data/parchment-%s/%s/parchment-%s-%s.zip", mcVersion.launcherFriendlyVersionName(), parchmentLatestReleaseVersionBuild, mcVersion.launcherFriendlyVersionName(), parchmentLatestReleaseVersionBuild),
 					new RemoteHelper.LocalFileInfo(mappingsFileJar,
-							null,
-							"parchment mapping",
-							mcVersion.launcherFriendlyVersionName())
-			);
+						null,
+						"parchment mapping",
+						mcVersion.launcherFriendlyVersionName())
+				);
+			} catch (RuntimeException e) {
+				NavigableSet<OrderedVersion> previousNodes = GitCraft.versionGraph.getPreviousNodes(mcVersion);
+				OrderedVersion prevMcVersion = previousNodes.getFirst();
+				MiscHelper.println("Failed getting parchment mappings for MC version: %s Falling back to: %s", mcVersion.launcherFriendlyVersionName(), prevMcVersion.launcherFriendlyVersionName());
+				downloadResult = RemoteHelper.downloadToFileWithChecksumIfNotExistsNoRetryMaven(
+					String.format("https://maven.parchmentmc.org/org/parchmentmc/data/parchment-%s/%s/parchment-%s-%s.zip", prevMcVersion.launcherFriendlyVersionName(), parchmentLatestReleaseVersionBuild, prevMcVersion.launcherFriendlyVersionName(), parchmentLatestReleaseVersionBuild),
+					new RemoteHelper.LocalFileInfo(mappingsFileJar,
+						null,
+						"parchment mapping",
+						mcVersion.launcherFriendlyVersionName())
+				);
+			}
+
 			try (FileSystem fs = FileSystems.newFileSystem(mappingsFileJar)) {
 				Path mappingsPathInJar = fs.getPath("parchment.json");
 				Files.copy(mappingsPathInJar, mappingsFileJson, StandardCopyOption.REPLACE_EXISTING);
@@ -107,7 +120,14 @@ public class ParchmentMappings extends Mapping {
 			try {
 				parchmentBuilds.put(mcVersion.launcherFriendlyVersionName(), RemoteHelper.readMavenLatestRelease(String.format("https://maven.parchmentmc.org/org/parchmentmc/data/parchment-%s/maven-metadata.xml", mcVersion.launcherFriendlyVersionName())));
 			} catch (Exception e) {
-				throw new RuntimeException(e);
+				try {
+					NavigableSet<OrderedVersion> previousNodes = GitCraft.versionGraph.getPreviousNodes(mcVersion);
+					OrderedVersion prevMcVersion = previousNodes.getFirst();
+					MiscHelper.println("Failed getting parchment mappings for MC version: %s Falling back to: %s", mcVersion.launcherFriendlyVersionName(), prevMcVersion.launcherFriendlyVersionName());
+					parchmentBuilds.put(mcVersion.launcherFriendlyVersionName(), RemoteHelper.readMavenLatestRelease(String.format("https://maven.parchmentmc.org/org/parchmentmc/data/parchment-%s/maven-metadata.xml", prevMcVersion.launcherFriendlyVersionName())));
+				} catch (Exception e2) {
+					throw new RuntimeException(e);
+				}
 			}
 		}
 		return parchmentBuilds.get(mcVersion.launcherFriendlyVersionName());
