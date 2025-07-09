@@ -65,7 +65,7 @@ Options:
                                including linear versions. This may be useful
                                for quickly switching between multiple versions.
       --create-stable-version-branches
-                             Creates a separate branch for each stable linear 
+                             Creates a separate branch for each stable linear
                                versions. This may be useful for quickly switching
                                between multiple versions.
       --exclude-version[=<version>[,<version>]...]

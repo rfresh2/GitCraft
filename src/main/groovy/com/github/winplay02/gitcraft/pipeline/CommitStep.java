@@ -71,6 +71,8 @@ public class CommitStep extends Step {
 			copyAssets(pipelineCache, mcVersion, repo);
 			// External Assets
 			copyExternalAssets(pipelineCache, mcVersion, repo);
+			// gradle setup
+			copyGradleSetup(pipelineCache, mcVersion, repo);
 		});
 		// Optionally sort copied JSON files
 		if (GitCraft.config.sortJsonObjects) {
@@ -211,8 +213,17 @@ public class CommitStep extends Step {
 			MiscHelper.panic("A decompiled JAR for version %s does not exist", mcVersion.launcherFriendlyVersionName());
 		}
 		try (FileSystemUtil.Delegate fs = FileSystemUtil.getJarFileSystem(decompiledJarPath)) {
-			MiscHelper.copyLargeDir(fs.get().getPath("."), repo.getRootPath().resolve("minecraft").resolve("src"));
+			MiscHelper.copyLargeDir(fs.get().getPath("."), repo.getRootPath().resolve("src").resolve("main").resolve("java"));
+			Files.move(repo.getRootPath().resolve("src").resolve("main").resolve("java").resolve("dependencies.json"), repo.getRootPath().resolve("dependencies.json"), StandardCopyOption.REPLACE_EXISTING);
 		}
+	}
+
+	private void copyGradleSetup(PipelineCache pipelineCache, OrderedVersion mcVersion, RepoWrapper repo) throws IOException {
+		Path gradleSetupPath = pipelineCache.getForKey(Step.STEP_GRADLE_SETUP);
+		if (gradleSetupPath == null) {
+			MiscHelper.panic("Gradle setup artifacts path does not exist", mcVersion.launcherFriendlyVersionName());
+		}
+		MiscHelper.copyLargeDir(gradleSetupPath, repo.getRootPath());
 	}
 
 	private void copyAssets(PipelineCache pipelineCache, OrderedVersion mcVersion, RepoWrapper repo) throws IOException {
@@ -223,10 +234,10 @@ public class CommitStep extends Step {
 			}
 			try (FileSystemUtil.Delegate fs = FileSystemUtil.getJarFileSystem(mergedJarPath)) {
 				if (GitCraft.config.loadAssets) {
-					MiscHelper.copyLargeDir(fs.get().getPath("assets"), repo.getRootPath().resolve("minecraft").resolve("resources").resolve("assets"));
+					MiscHelper.copyLargeDir(fs.get().getPath("assets"), repo.getRootPath().resolve("src").resolve("main").resolve("resources").resolve("assets"));
 				}
 				if (GitCraft.config.loadIntegratedDatapack) {
-					MiscHelper.copyLargeDir(fs.get().getPath("data"), repo.getRootPath().resolve("minecraft").resolve("resources").resolve("data"));
+					MiscHelper.copyLargeDir(fs.get().getPath("data"), repo.getRootPath().resolve("src").resolve("main").resolve("resources").resolve("data"));
 				}
 			}
 		}
@@ -234,19 +245,19 @@ public class CommitStep extends Step {
 			Path artifactsRootPath = pipelineCache.getForKey(Step.STEP_FETCH_ARTIFACTS);
 			if (GitCraft.config.loadDatagenRegistry) {
 				try (FileSystemUtil.Delegate fs = FileSystemUtil.getJarFileSystem(GitCraft.STEP_DATAGEN.getDatagenReportsArchive(artifactsRootPath))) {
-					MiscHelper.copyLargeDir(fs.getPath("reports"), repo.getRootPath().resolve("minecraft").resolve("resources").resolve("datagen-reports"));
+					MiscHelper.copyLargeDir(fs.getPath("reports"), repo.getRootPath().resolve("src").resolve("main").resolve("resources").resolve("datagen-reports"));
 				}
 				Tuple2<OrderedVersion, Artifact> experimentalWorldgenPack = GitCraft.STEP_DATAGEN.getExtVanillaWorldgenPack(mcVersion);
 				if (experimentalWorldgenPack != null) {
 					Path expWorldgenPackPath = experimentalWorldgenPack.getV2().resolve(GitCraft.STEP_FETCH_ARTIFACTS.getInternalArtifactPath(experimentalWorldgenPack.getV1(), null));
 					try (FileSystemUtil.Delegate fs = FileSystemUtil.getJarFileSystem(expWorldgenPackPath)) {
-						MiscHelper.copyLargeDir(fs.get().getPath("."), repo.getRootPath().resolve("minecraft").resolve("resources").resolve("exp-vanilla-worldgen"));
+						MiscHelper.copyLargeDir(fs.get().getPath("."), repo.getRootPath().resolve("src").resolve("main").resolve("resources").resolve("exp-vanilla-worldgen"));
 					}
 				}
 			}
 			if (GitCraft.config.readableNbt && GitCraft.config.loadIntegratedDatapack) {
 				try (FileSystemUtil.Delegate fs = FileSystemUtil.getJarFileSystem(GitCraft.STEP_DATAGEN.getDatagenSNBTArchive(artifactsRootPath))) {
-					MiscHelper.copyLargeDir(fs.getPath("data"), repo.getRootPath().resolve("minecraft").resolve("resources").resolve("datagen-snbt"));
+					MiscHelper.copyLargeDir(fs.getPath("data"), repo.getRootPath().resolve("src").resolve("main").resolve("resources").resolve("datagen-snbt"));
 				}
 			}
 		}
@@ -271,7 +282,7 @@ public class CommitStep extends Step {
 				MiscHelper.panic("Assets for version %s do not exist", mcVersion.launcherFriendlyVersionName());
 			}
 			// Copy Assets
-			Path targetRoot = repo.getRootPath().resolve("minecraft").resolve("external-resources").resolve("assets");
+			Path targetRoot = repo.getRootPath().resolve("external-resources").resolve("assets");
 			if (GitCraft.config.useHardlinks && GitCraftPaths.ASSETS_OBJECTS.getFileSystem().equals(targetRoot.getFileSystem()) && !GitCraft.config.sortJsonObjects) {
 				for (Map.Entry<String, AssetsIndexMeta.AssetsIndexEntry> entry : assetsIndex.assetsIndex().objects().entrySet()) {
 					Path sourcePath = GitCraftPaths.ASSETS_OBJECTS.resolve(entry.getValue().hash());

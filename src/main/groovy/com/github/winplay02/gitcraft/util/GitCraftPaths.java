@@ -26,6 +26,7 @@ public class GitCraftPaths {
 	public static Path SOURCE_EXTRA_VERSIONS = null;
 	protected static Path LEGACY_METADATA_STORE = null;
 	protected static Path GITCRAFT_VERSION_INFO = null;
+	public static Path GRADLE_SETUP = null;
 
 	public static Path lookupCurrentWorkingDirectory() throws IOException {
 		return Paths.get(new File(".").getCanonicalPath());
@@ -50,6 +51,7 @@ public class GitCraftPaths {
 		SOURCE_EXTRA_VERSIONS = CURRENT_WORKING_DIRECTORY.resolve("extra-versions");
 		LEGACY_METADATA_STORE = MAIN_ARTIFACT_STORE.resolve("metadata.json");
 		GITCRAFT_VERSION_INFO = MAIN_ARTIFACT_STORE.resolve("gitcraft-version.txt");
+		GRADLE_SETUP = MAIN_ARTIFACT_STORE.resolve("gradle-setup");
 		// Warning for breaking changes (the only breaking changes for now)
 		Files.createDirectories(MAIN_ARTIFACT_STORE);
 		upgradeExisting();
@@ -63,6 +65,7 @@ public class GitCraftPaths {
 		Files.createDirectories(ASSETS_INDEX);
 		Files.createDirectories(ASSETS_OBJECTS);
 		Files.createDirectories(SOURCE_EXTRA_VERSIONS);
+		Files.createDirectories(GRADLE_SETUP);
 		MiscHelper.tryJavaExecution();
 	}
 

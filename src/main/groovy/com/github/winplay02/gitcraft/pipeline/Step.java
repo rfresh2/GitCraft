@@ -50,6 +50,8 @@ public abstract class Step {
 
 	protected static final String STEP_COMMIT = "Commit";
 
+	protected static final String STEP_GRADLE_SETUP = "Gradle Setup";
+
 	public enum StepResult implements Comparator<StepResult> {
 
 		NOT_RUN,
