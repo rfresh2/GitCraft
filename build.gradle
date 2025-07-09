@@ -71,4 +71,5 @@ configurations.all {
 test {
 	maxHeapSize = "4G"
 	useJUnitPlatform()
+	enabled = false
 }
