@@ -17,11 +17,11 @@ import java.util.stream.Collectors;
 public class GitCraftConfig {
 
 	/// Additional Data import settings
-	public boolean loadIntegratedDatapack = true;
+	public boolean loadIntegratedDatapack = false;
 	public boolean loadAssets = true;
-	public boolean loadAssetsExtern = true;
-	public boolean readableNbt = true;
-	public boolean loadDatagenRegistry = true;
+	public boolean loadAssetsExtern = false;
+	public boolean readableNbt = false;
+	public boolean loadDatagenRegistry = false;
 	public boolean sortJsonObjects = false;
 
 	/// Internal options
@@ -31,8 +31,8 @@ public class GitCraftConfig {
 	public boolean printExistingFileChecksumMatchingSkipped = false;
 	public boolean printNotRunSteps = false;
 	public int failedFetchRetryInterval = 500;
-	public int remappingThreads = Runtime.getRuntime().availableProcessors() - 3;
-	public int decompilingThreads = Runtime.getRuntime().availableProcessors() - 3;
+	public int remappingThreads = Runtime.getRuntime().availableProcessors() - 1;
+	public int decompilingThreads = Runtime.getRuntime().availableProcessors() - 1;
 	public boolean useHardlinks = true;
 
 	/// Repository settings
@@ -41,7 +41,7 @@ public class GitCraftConfig {
 	public String gitUser = "Mojang";
 	public String gitMail = "gitcraft@decompiled.mc";
 	public String gitMainlineLinearBranch = "master";
-    public boolean createVersionBranches = false;
+    public boolean createVersionBranches = true;
     public boolean createStableVersionBranches = false;
 
 	/// Refresh settings
@@ -55,9 +55,9 @@ public class GitCraftConfig {
 	public MappingFlavour[] fallbackMappings = null;
 
 	/// Version settings
-	public boolean onlyStableReleases = false;
+	public boolean onlyStableReleases = true;
 	public boolean onlySnapshots = false;
-	public boolean skipNonLinear = false;
+	public boolean skipNonLinear = true;
 	public String[] onlyVersion = null;
 	public String minVersion = null;
 	public String maxVersion = null;
