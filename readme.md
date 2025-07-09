@@ -1,5 +1,15 @@
 # GitCraft-Next
 
+# Info
+
+This is a fork of https://github.com/WinPlay02/GitCraft
+
+I have made a few changes for my own needs:
+
+* Setting up a gradle build in the decomp outputs
+* Configuration through json instead of CLI args (very basic, does not cover all options)
+* Updated a few defaults
+
 ## License
 
 GitCraft-Next Copyright (C) 2023 - 2025 WinPlay02 and contributors
