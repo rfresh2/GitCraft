@@ -1,10 +1,3 @@
-import org.jetbrains.gradle.ext.settings
-import org.jetbrains.gradle.ext.taskTriggers
-import java.net.URL
-import java.nio.file.Files
-
-val externalDependenciesDir = layout.buildDirectory.dir("dependencies")
-
 plugins {
 	`java-library`
 	id("org.jetbrains.gradle.plugin.idea-ext") version "1.+"
@@ -16,52 +9,25 @@ repositories {
 		name = "Fabric"
 		url = uri("https://maven.fabricmc.net/")
 	}
+	maven {
+		name = "MojangMeta"
+		url = uri("https://maven.neoforged.net/mojang-meta")
+		content {
+			includeModule("net.neoforged", "minecraft-dependencies")
+		}
+	}
+	maven {
+		url = uri("https://libraries.minecraft.net/")
+	}
 }
 
 dependencies {
-	val externalJars = externalDependenciesDir.get().asFile.takeIf { it.exists() }?.listFiles()?.toList() ?: emptyList()
-	if (externalJars.isNotEmpty()) {
-		implementation(files(externalJars))
-	}
-}
-
-val downloadJarsTask = tasks.register("downloadJars") {
-	group = "build"
-	doLast {
-		val jsonFile = file("dependencies.json")
-		if (!jsonFile.exists()) {
-			throw GradleException("dependencies.json file not found at ${jsonFile.absolutePath}")
-		}
-
-		// Read the JSON file as a plain string
-		val jsonContent = jsonFile.readText()
-
-		// Extract URLs manually
-		val jarUrls = Regex("\"url\":\\s*\"(https?://[^\"]+)\"")
-			.findAll(jsonContent)
-			.map { it.groupValues[1] }
-			.toList()
-
-		val targetDir = externalDependenciesDir.get().asFile
-		if (!targetDir.exists()) targetDir.mkdirs()
-
-		jarUrls.forEach { jarUrl ->
-			val fileName = jarUrl.substringAfterLast("/")
-			val targetFile = targetDir.resolve(fileName)
-
-			if (!targetFile.exists()) {
-				println("Downloading $fileName...")
-				URL(jarUrl).openStream().use { input ->
-					Files.copy(input, targetFile.toPath())
-				}
-				println("Saved to ${targetFile.absolutePath}")
-			} else {
-				println("$fileName already exists, skipping.")
-			}
+	implementation("net.neoforged:minecraft-dependencies:${project.property("minecraft_version")}") {
+		attributes {
+			attribute(Attribute.of("net.neoforged.distribution", String::class.java), "client")
 		}
 	}
-}
-
-idea {
-	project.settings.taskTriggers.beforeSync(downloadJarsTask)
+	implementation("com.google.code.findbugs:jsr305:3.0.2")
+	implementation("org.jetbrains:annotations:26.0.2")
+	implementation("net.fabricmc:fabric-loader:0.17.2")
 }

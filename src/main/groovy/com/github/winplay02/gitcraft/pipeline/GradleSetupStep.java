@@ -38,6 +38,8 @@ public class GradleSetupStep extends Step {
 		copyGradleResource("gitignore", rootPath.resolve(".gitignore"));
 		copyGradleResource("gradle/wrapper/gradle-wrapper.properties", rootPath.resolve("gradle").resolve("wrapper").resolve("gradle-wrapper.properties"));
 		copyGradleResource("gradle/wrapper/gradle-wrapper.jar", rootPath.resolve("gradle").resolve("wrapper").resolve("gradle-wrapper.jar"));
+		copyGradleResource("gradle.properties", rootPath.resolve("gradle.properties"));
+		replaceInFile(rootPath.resolve("gradle.properties"), "${minecraft_version}", mcVersion.launcherFriendlyVersionName());
 		return StepResult.SUCCESS;
 	}
 
@@ -52,6 +54,16 @@ public class GradleSetupStep extends Step {
 				throw new UncheckedIOException(new IOException("Resource not found: " + path));
 			}
 			Files.copy(stream, targetPath, StandardCopyOption.REPLACE_EXISTING);
+		} catch (IOException e) {
+			throw new UncheckedIOException(e);
+		}
+	}
+
+	protected void replaceInFile(Path filePath, String target, String replacement) {
+		try {
+			String content = Files.readString(filePath);
+			content = content.replace(target, replacement);
+			Files.writeString(filePath, content);
 		} catch (IOException e) {
 			throw new UncheckedIOException(e);
 		}

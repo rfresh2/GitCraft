@@ -79,6 +79,7 @@ class GitCraftCli {
 				if (repoConfig.override_repo_target != null) {
 					config.overrideRepositoryPath = Path.of(repoConfig.override_repo_target).toAbsolutePath()
 				}
+				config.refreshDecompilation = repoConfig.refresh
 			}
 		} else {
 			config.loadAssets = !cli_args_parsed.hasOption("no-assets");

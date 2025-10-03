@@ -9,4 +9,5 @@ public class RepoConfig {
 	public String override_repo_target = null;
 	public String mappings = "mojmap_parchment";
 	public String[] versions = new String[0];
+	public boolean refresh = false;
 }
