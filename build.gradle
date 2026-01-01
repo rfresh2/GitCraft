@@ -44,6 +44,7 @@ dependencies {
 	// tinyfile management
 	implementation("net.fabricmc:tiny-remapper:${tiny_remapper_version}")
 	implementation "net.fabricmc:access-widener:${access_widener_version}"
+	implementation "net.fabricmc:class-tweaker:${class_tweaker_version}"
 	implementation "net.fabricmc:mapping-io:${mappingio_version}"
 	implementation "net.fabricmc:fabric-loom:${loom_version}"
 	implementation "net.fabricmc.unpick:unpick-cli:${unpick_version}"
