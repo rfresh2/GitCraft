@@ -110,9 +110,6 @@ public class GitCraftConfig {
 			"1.16_combat-0", "1_16_combat-0" // 1.16_combat-0
 	);
 
-	// There are no releases for these parchment versions (yet)
-	public static List<String> parchmentMissingVersions = List.of("1.18", "1.19", "1.19.1", "1.20", "1.20.5");
-
 	// Version Override
 	public static Map<String, String> minecraftVersionSemVerOverride = Map.of(
 			// wrongly ordered 1.16 snapshots (pre gets mapped to rc for version 1.16, so there would be to rc1 versions)

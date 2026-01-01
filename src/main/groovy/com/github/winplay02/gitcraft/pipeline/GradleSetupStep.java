@@ -40,6 +40,7 @@ public class GradleSetupStep extends Step {
 		copyGradleResource("gradle/wrapper/gradle-wrapper.jar", rootPath.resolve("gradle").resolve("wrapper").resolve("gradle-wrapper.jar"));
 		copyGradleResource("gradle.properties", rootPath.resolve("gradle.properties"));
 		replaceInFile(rootPath.resolve("gradle.properties"), "${minecraft_version}", mcVersion.launcherFriendlyVersionName());
+		replaceInFile(rootPath.resolve("gradle.properties"), "${java_version}", String.valueOf(mcVersion.javaVersion()));
 		return StepResult.SUCCESS;
 	}
 
