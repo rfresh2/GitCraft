@@ -74,12 +74,18 @@ class GitCraftCli {
 				config.loadAssetsExtern = !repoConfig.no_external_assets
 				config.readableNbt = !repoConfig.no_datagen_snbt
 				config.loadDatagenRegistry = !repoConfig.no_datagen_report
+				config.onlyStableReleases = repoConfig.only_stable
+				config.onlySnapshots = repoConfig.only_snapshot
+				config.skipNonLinear = repoConfig.skip_nonlinear
 				config.usedMapping = MappingFlavour.valueOf(repoConfig.mappings.toUpperCase())
 				config.onlyVersion = repoConfig.versions
 				if (repoConfig.override_repo_target != null) {
 					config.overrideRepositoryPath = Path.of(repoConfig.override_repo_target).toAbsolutePath()
 				}
 				config.refreshDecompilation = repoConfig.refresh
+				if (config.onlyStableReleases && config.onlySnapshots) {
+					MiscHelper.panic("ERROR: Excluding both stable releases and snapshots would lead to doing nothing");
+				}
 			}
 		} else {
 			config.loadAssets = !cli_args_parsed.hasOption("no-assets");

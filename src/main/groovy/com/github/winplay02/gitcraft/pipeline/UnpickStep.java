@@ -38,6 +38,9 @@ public class UnpickStep extends Step {
 
 	@Override
 	public boolean preconditionsShouldRun(PipelineCache pipelineCache, OrderedVersion mcVersion, MappingFlavour mappingFlavour, MinecraftVersionGraph versionGraph, RepoWrapper repo) {
+		if (!mcVersion.requiresRemapping()) {
+			return false;
+		}
 		Map<String, Path> additionalMappingPaths = mappingFlavour.getMappingImpl().getAdditionalMappingInformation(mcVersion);
 		return mappingFlavour.getMappingImpl().supportsConstantUnpicking() && additionalMappingPaths.containsKey(Mapping.KEY_UNPICK_CONSTANTS) && additionalMappingPaths.containsKey(Mapping.KEY_UNPICK_DEFINITIONS) && super.preconditionsShouldRun(pipelineCache, mcVersion, mappingFlavour, versionGraph, repo);
 	}

@@ -1,5 +1,6 @@
 package com.github.winplay02.gitcraft.types;
 
+import com.github.winplay02.gitcraft.GitCraftConfig;
 import com.github.winplay02.gitcraft.meta.ArtifactMeta;
 import com.github.winplay02.gitcraft.meta.LibraryMeta;
 import com.github.winplay02.gitcraft.meta.VersionMeta;
@@ -118,6 +119,10 @@ public record OrderedVersion(
 
 	public boolean hasFullMojMaps() {
 		return this.hasClientMojMaps() && this.hasServerMojMaps();
+	}
+
+	public boolean requiresRemapping() {
+		return this.compareTo(GitCraftConfig.NON_OBFUSCATED_START_VERSION) < 0;
 	}
 
 	public String mainClass() {

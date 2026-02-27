@@ -6,6 +6,9 @@ public class RepoConfig {
 	public boolean no_external_assets = true;
 	public boolean no_datagen_snbt = true;
 	public boolean no_datagen_report = true;
+	public boolean only_stable = false;
+	public boolean only_snapshot = false;
+	public boolean skip_nonlinear = false;
 	public String override_repo_target = null;
 	public String mappings = "mojmap_parchment";
 	public String[] versions = new String[0];

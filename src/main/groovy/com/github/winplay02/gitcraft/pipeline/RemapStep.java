@@ -40,6 +40,11 @@ public class RemapStep extends Step {
 	private static final Pattern MC_LV_PATTERN = Pattern.compile("\\$\\$\\d+");
 
 	@Override
+	public boolean preconditionsShouldRun(PipelineCache pipelineCache, OrderedVersion mcVersion, MappingFlavour mappingFlavour, MinecraftVersionGraph versionGraph, RepoWrapper repo) {
+		return mcVersion.requiresRemapping() && super.preconditionsShouldRun(pipelineCache, mcVersion, mappingFlavour, versionGraph, repo);
+	}
+
+	@Override
 	public StepResult run(PipelineCache pipelineCache, OrderedVersion mcVersion, MappingFlavour mappingFlavour, MinecraftVersionGraph versionGraph, RepoWrapper repo) throws Exception {
 		Path remappedPath = getInternalArtifactPath(mcVersion, mappingFlavour);
 		if (Files.exists(remappedPath) && Files.size(remappedPath) > 22 /* not empty jar */) {

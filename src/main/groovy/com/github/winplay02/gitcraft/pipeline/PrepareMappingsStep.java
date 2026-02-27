@@ -12,6 +12,11 @@ public class PrepareMappingsStep extends Step {
 	}
 
 	@Override
+	public boolean preconditionsShouldRun(PipelineCache pipelineCache, OrderedVersion mcVersion, MappingFlavour mappingFlavour, MinecraftVersionGraph versionGraph, RepoWrapper repo) {
+		return mcVersion.requiresRemapping() && super.preconditionsShouldRun(pipelineCache, mcVersion, mappingFlavour, versionGraph, repo);
+	}
+
+	@Override
 	public StepResult run(PipelineCache pipelineCache, OrderedVersion mcVersion, MappingFlavour mappingFlavour, MinecraftVersionGraph versionGraph, RepoWrapper repo) throws Exception {
 		return mappingFlavour.getMappingImpl().prepareMappings(mcVersion);
 	}

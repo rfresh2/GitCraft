@@ -68,9 +68,12 @@ public class DecompileStep extends Step {
 		if (remappedPath == null) {
 			// if no unpicking happened, use remapped
 			remappedPath = pipelineCache.getForKey(Step.STEP_REMAP);
-			// TODO if remapping did not happen, do something useful; Maybe decompile raw?
+		}
+		if (remappedPath == null) {
+			// remapping may be intentionally skipped for versions with unobfuscated official bytecode
+			remappedPath = pipelineCache.getForKey(Step.STEP_MERGE);
 			if (remappedPath == null) {
-				MiscHelper.panic("Both an unpicked JAR and a remapped JAR for version %s does not exist", mcVersion.launcherFriendlyVersionName());
+				MiscHelper.panic("No input JAR (unpicked, remapped, or merged) exists for version %s", mcVersion.launcherFriendlyVersionName());
 			}
 		}
 		Path libraryPath = pipelineCache.getForKey(Step.STEP_FETCH_LIBRARIES);
@@ -91,7 +94,7 @@ public class DecompileStep extends Step {
 		// Experimental QF preferences
 		options.put(IFernflowerPreferences.PATTERN_MATCHING, "1");
 		options.put(IFernflowerPreferences.TRY_LOOP_FIX, "1");
-		if (mappingFlavour.getMappingImpl().supportsComments()) {
+		if (mcVersion.requiresRemapping() && mappingFlavour.getMappingImpl().supportsComments()) {
 			options.put(IFabricJavadocProvider.PROPERTY_NAME, new TinyJavadocProvider(mappingFlavour.getMappingImpl().getMappingsPath(mcVersion).orElseThrow().toFile()));
 		}
 

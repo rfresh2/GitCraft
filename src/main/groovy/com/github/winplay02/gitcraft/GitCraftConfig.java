@@ -67,6 +67,7 @@ public class GitCraftConfig {
 	public static final String MIN_SUPPORTED_FABRIC_LOADER = "0.16.14";
 
 	public static final SemanticVersion INTERMEDIARY_MAPPINGS_START_VERSION, YARN_MAPPINGS_START_VERSION, YARN_CORRECTLY_ORIENTATED_MAPPINGS_VERSION, PARCHMENT_START_VERSION;
+	public static final SemanticVersion NON_OBFUSCATED_START_VERSION;
 
 	static {
 		try {
@@ -74,6 +75,7 @@ public class GitCraftConfig {
 			YARN_MAPPINGS_START_VERSION = SemanticVersion.parse("1.14-alpha.18.49.a");
 			YARN_CORRECTLY_ORIENTATED_MAPPINGS_VERSION = SemanticVersion.parse("1.14.3");
 			PARCHMENT_START_VERSION = SemanticVersion.parse("1.16.5");
+			NON_OBFUSCATED_START_VERSION = SemanticVersion.parse("26.1-alpha.1");
 		} catch (VersionParsingException e) {
 			throw new RuntimeException(e);
 		}
@@ -206,6 +208,9 @@ public class GitCraftConfig {
 	}
 
 	public Optional<MappingFlavour> getMappingsForMinecraftVersion(OrderedVersion mcVersion) {
+		if (!mcVersion.requiresRemapping()) {
+			return Optional.of(this.usedMapping);
+		}
 		if (this.usedMapping.getMappingImpl().doMappingsExist(mcVersion)) {
 			return Optional.of(this.usedMapping);
 		}
