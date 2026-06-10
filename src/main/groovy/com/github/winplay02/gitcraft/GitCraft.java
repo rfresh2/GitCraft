@@ -13,6 +13,8 @@ import com.github.winplay02.gitcraft.util.GitCraftPaths;
 import com.github.winplay02.gitcraft.util.MiscHelper;
 import com.github.winplay02.gitcraft.util.RepoWrapper;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -175,10 +177,17 @@ public class GitCraft {
 	}
 
 	public static RepoWrapper getRepository() throws Exception {
-		if (!GitCraft.config.noRepo) {
-			String identifier = GitCraft.versionGraph.repoTagsIdentifier(GitCraft.config.usedMapping, GitCraft.config.fallbackMappings);
-			return new RepoWrapper(GitCraft.config.overrideRepositoryPath != null ? GitCraft.config.overrideRepositoryPath : (identifier.isEmpty() ? null : GitCraftPaths.CURRENT_WORKING_DIRECTORY.resolve(String.format("minecraft-repo-%s", identifier))));
+		if (GitCraft.config.noRepo) {
+			return null;
 		}
-		return null;
+		String identifier = GitCraft.versionGraph.repoTagsIdentifier(GitCraft.config.usedMapping, GitCraft.config.fallbackMappings);
+		Path repoPath = GitCraft.config.overrideRepositoryPath != null
+			? GitCraft.config.overrideRepositoryPath
+			: (identifier.isEmpty() ? GitCraftPaths.REPO : GitCraftPaths.CURRENT_WORKING_DIRECTORY.resolve(String.format("minecraft-repo-%s", identifier)));
+		if (GitCraft.config.refreshDecompilation && Files.exists(repoPath)) {
+			MiscHelper.println("Refresh requested: deleting target repository at %s", repoPath);
+			MiscHelper.deleteDirectory(repoPath);
+		}
+		return new RepoWrapper(repoPath);
 	}
 }

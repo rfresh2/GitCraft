@@ -95,7 +95,9 @@ public class DecompileStep extends Step {
 		options.put(IFernflowerPreferences.PATTERN_MATCHING, "1");
 		options.put(IFernflowerPreferences.TRY_LOOP_FIX, "1");
 		if (mcVersion.requiresRemapping() && mappingFlavour.getMappingImpl().supportsComments()) {
-			options.put(IFabricJavadocProvider.PROPERTY_NAME, new TinyJavadocProvider(mappingFlavour.getMappingImpl().getMappingsPath(mcVersion).orElseThrow().toFile()));
+			options.put(IFabricJavadocProvider.PROPERTY_NAME, new TinyJavadocProvider(
+					mappingFlavour.getMappingImpl().getMappingsPath(mcVersion).orElseThrow().toFile(),
+					mappingFlavour.getMappingImpl().getDestinationNS()));
 		}
 
 		FileSystemUtil.Delegate decompiledJar = FileSystemUtil.getJarFileSystem(decompiledPath, true);
