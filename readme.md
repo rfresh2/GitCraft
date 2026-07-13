@@ -1,4 +1,4 @@
-# GitCraft-Next
+# GitCraft
 
 # Info
 
@@ -7,22 +7,15 @@ This is a fork of https://github.com/WinPlay02/GitCraft
 I have made a few changes for my own needs:
 
 * Setting up a gradle build in the decomp outputs
+  * not compilable but lets you import it (with dependencies) in an IDE
 * Configuration through json instead of CLI args (very basic, does not cover all options)
+  * `./gradlew run --args="--repo-config=repo-config.json"` (my included config, others would probably want to change it)
 * Updated a few defaults
 
-## License
+## Alternatives
 
-GitCraft-Next Copyright (C) 2023 - 2025 WinPlay02 and contributors
-
-This Source Code Form is subject to the terms of the Mozilla Public
-License, v. 2.0. If a copy of the MPL was not distributed with this
-file, You can obtain one at https://mozilla.org/MPL/2.0/.
-
-## Contributors
-
-- [Kas-tle](https://github.com/Kas-tle)
-- [A11v1r15](https://github.com/A11v1r15)
-- [SpaceWalkerRS](https://github.com/SpaceWalkerRS)
+* https://mcsrc.dev/ Simple MC decomp as a web app
+* Neoforge's Snowblower: https://github.com/neoforged/snowblower/
 
 ## General
 
