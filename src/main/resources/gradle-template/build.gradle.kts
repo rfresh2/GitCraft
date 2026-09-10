@@ -4,19 +4,22 @@ plugins {
 
 repositories {
 	mavenCentral()
-	maven {
+	maven("https://maven.fabricmc.net/") {
 		name = "Fabric"
-		url = uri("https://maven.fabricmc.net/")
 	}
-	maven {
+	maven("https://maven.neoforged.net/mojang-meta") {
 		name = "MojangMeta"
-		url = uri("https://maven.neoforged.net/mojang-meta")
 		content {
 			includeModule("net.neoforged", "minecraft-dependencies")
 		}
+		metadataSources {
+			gradleMetadata()
+		}
 	}
-	maven {
-		url = uri("https://libraries.minecraft.net/")
+	maven("https://libraries.minecraft.net/") {
+		metadataSources {
+			mavenPom()
+		}
 	}
 }
 
@@ -28,7 +31,7 @@ dependencies {
 	}
 	implementation("com.google.code.findbugs:jsr305:3.0.2")
 	implementation("org.jetbrains:annotations:26.0.2")
-	implementation("net.fabricmc:fabric-loader:0.19.3")
+	implementation("net.fabricmc:fabric-loader:0.19.5")
 }
 
 java {

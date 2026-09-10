@@ -38,6 +38,7 @@ public class GradleSetupStep extends Step {
 		copyGradleResource("gitignore", rootPath.resolve(".gitignore"));
 		copyGradleResource("gradle/wrapper/gradle-wrapper.properties", rootPath.resolve("gradle").resolve("wrapper").resolve("gradle-wrapper.properties"));
 		copyGradleResource("gradle/wrapper/gradle-wrapper.jar", rootPath.resolve("gradle").resolve("wrapper").resolve("gradle-wrapper.jar"));
+		copyGradleResource("gradle/gradle-daemon-jvm.properties", rootPath.resolve("gradle").resolve("wrapper").resolve("gradle-daemon-jvm.properties"));
 		copyGradleResource("gradle.properties", rootPath.resolve("gradle.properties"));
 		replaceInFile(rootPath.resolve("gradle.properties"), "${minecraft_version}", mcVersion.launcherFriendlyVersionName());
 		replaceInFile(rootPath.resolve("gradle.properties"), "${java_version}", String.valueOf(mcVersion.javaVersion()));
