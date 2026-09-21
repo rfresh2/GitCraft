@@ -11,6 +11,7 @@ import com.github.winplay02.gitcraft.util.MiscHelper;
 import com.github.winplay02.gitcraft.util.RepoWrapper;
 import com.github.winplay02.gitcraft.util.SerializationHelper;
 import net.fabricmc.fernflower.api.IFabricJavadocProvider;
+import net.fabricmc.loom.api.decompilers.JavadocStyle;
 import net.fabricmc.loom.decompilers.vineflower.TinyJavadocProvider;
 import net.fabricmc.loom.util.FileSystemUtil;
 import org.jetbrains.java.decompiler.main.Fernflower;
@@ -91,13 +92,12 @@ public class DecompileStep extends Step {
 		options.put(IFernflowerPreferences.LOG_LEVEL, "trace");
 		options.put(IFernflowerPreferences.THREADS, Integer.toString(GitCraft.config.decompilingThreads));
 
-		// Experimental QF preferences
-		options.put(IFernflowerPreferences.PATTERN_MATCHING, "1");
-		options.put(IFernflowerPreferences.TRY_LOOP_FIX, "1");
 		if (mcVersion.requiresRemapping() && mappingFlavour.getMappingImpl().supportsComments()) {
 			options.put(IFabricJavadocProvider.PROPERTY_NAME, new TinyJavadocProvider(
 					mappingFlavour.getMappingImpl().getMappingsPath(mcVersion).orElseThrow().toFile(),
-					mappingFlavour.getMappingImpl().getDestinationNS()));
+					mappingFlavour.getMappingImpl().getDestinationNS(),
+					JavadocStyle.MARKDOWN
+				));
 		}
 
 		FileSystemUtil.Delegate decompiledJar = FileSystemUtil.getJarFileSystem(decompiledPath, true);

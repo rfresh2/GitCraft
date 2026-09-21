@@ -7,9 +7,9 @@ This is a fork of https://github.com/WinPlay02/GitCraft
 I have made a few changes for my own needs:
 
 * Setting up a gradle build in the decomp outputs
-  * not compilable but lets you import it (with dependencies) in an IDE
+  * not compilable but lets you import it with dependencies in an IDE
 * Configuration through json instead of CLI args (very basic, does not cover all options)
-  * `./gradlew run --args="--repo-config=repo-config.json"` (my included config, others would probably want to change it)
+  * `./gradlew run --args="--repo-config=repo-config.json"` (my personal config, change it for yourself as you see fit)
 * Updated a few defaults
 
 ## Alternatives
