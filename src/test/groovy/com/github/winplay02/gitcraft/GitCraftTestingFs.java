@@ -5,10 +5,11 @@ import com.github.winplay02.gitcraft.util.MiscHelper;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-public class GitCraftTestingFs implements BeforeAllCallback, ExtensionContext.Store.CloseableResource {
+public class GitCraftTestingFs implements BeforeAllCallback, AutoCloseable {
 
 	protected static Path temporaryTestingFsPath = null;
 	//protected static FileSystemUtil.Delegate temporaryTestingFs;
@@ -26,7 +27,7 @@ public class GitCraftTestingFs implements BeforeAllCallback, ExtensionContext.St
 	}
 
 	@Override
-	public void close() throws Throwable {
+	public void close() throws IOException {
 		if (temporaryTestingFsPath != null) {
 			// temporaryTestingFs.close();
 			// Files.delete(temporaryTestingFsPath.resolve("testingfs.jar"));
