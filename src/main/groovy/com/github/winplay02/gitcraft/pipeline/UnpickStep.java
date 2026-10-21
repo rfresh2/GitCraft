@@ -1,5 +1,6 @@
 package com.github.winplay02.gitcraft.pipeline;
 
+import com.github.winplay02.gitcraft.GitCraft;
 import com.github.winplay02.gitcraft.MinecraftVersionGraph;
 import com.github.winplay02.gitcraft.mappings.Mapping;
 import com.github.winplay02.gitcraft.mappings.MappingFlavour;
@@ -52,7 +53,7 @@ public class UnpickStep extends Step {
 
 	@Override
 	public boolean preconditionsShouldRun(PipelineCache pipelineCache, OrderedVersion mcVersion, MappingFlavour mappingFlavour, MinecraftVersionGraph versionGraph, RepoWrapper repo) {
-		if (!mcVersion.requiresRemapping()) {
+		if (!mcVersion.requiresRemapping() || GitCraft.STEP_NEOFORM.appliesTo(mcVersion, mappingFlavour)) {
 			return false;
 		}
 		Map<String, Path> additionalMappingPaths = mappingFlavour.getMappingImpl().getAdditionalMappingInformation(mcVersion);

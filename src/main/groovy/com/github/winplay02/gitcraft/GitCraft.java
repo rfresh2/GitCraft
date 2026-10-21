@@ -2,11 +2,7 @@ package com.github.winplay02.gitcraft;
 
 import com.github.winplay02.gitcraft.manifest.ManifestProvider;
 import com.github.winplay02.gitcraft.manifest.MinecraftLauncherManifest;
-import com.github.winplay02.gitcraft.mappings.FabricIntermediaryMappings;
-import com.github.winplay02.gitcraft.mappings.Mapping;
-import com.github.winplay02.gitcraft.mappings.MojangMappings;
-import com.github.winplay02.gitcraft.mappings.ParchmentMappings;
-import com.github.winplay02.gitcraft.mappings.YarnMappings;
+import com.github.winplay02.gitcraft.mappings.*;
 import com.github.winplay02.gitcraft.pipeline.*;
 import com.github.winplay02.gitcraft.types.OrderedVersion;
 import com.github.winplay02.gitcraft.util.GitCraftPaths;
@@ -24,7 +20,7 @@ public class GitCraft {
 	public static final MojangMappings MOJANG_MAPPINGS = new MojangMappings();
 	public static final FabricIntermediaryMappings FABRIC_INTERMEDIARY_MAPPINGS = new FabricIntermediaryMappings();
 	public static final Mapping YARN_MAPPINGS = new YarnMappings(FABRIC_INTERMEDIARY_MAPPINGS);
-	public static final Mapping MOJANG_PARCHMENT_MAPPINGS = new ParchmentMappings(MOJANG_MAPPINGS);
+	public static final ParchmentMappings MOJANG_PARCHMENT_MAPPINGS = new ParchmentMappings(MOJANG_MAPPINGS);
 
 	/// Every Step
 	public static Step STEP_RESET = null;
@@ -37,6 +33,7 @@ public class GitCraft {
 	public static Step STEP_REMAP = null;
 	public static Step STEP_UNPICK = null;
 	public static Step STEP_DECOMPILE = null;
+	public static NeoFormStep STEP_NEOFORM = null;
 	public static Step STEP_GRADLE_SETUP = null;
 	public static CommitStep STEP_COMMIT = null;
 
@@ -75,6 +72,7 @@ public class GitCraft {
 			DEFAULT_PIPELINE.add(STEP_REMAP = new RemapStep());
 			DEFAULT_PIPELINE.add(STEP_UNPICK = new UnpickStep());
 			DEFAULT_PIPELINE.add(STEP_DECOMPILE = new DecompileStep());
+			DEFAULT_PIPELINE.add(STEP_NEOFORM = new NeoFormStep());
 			DEFAULT_PIPELINE.add(STEP_GRADLE_SETUP = new GradleSetupStep());
 			DEFAULT_PIPELINE.add(STEP_COMMIT = new CommitStep());
 		}

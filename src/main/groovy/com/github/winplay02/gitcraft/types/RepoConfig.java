@@ -13,4 +13,5 @@ public class RepoConfig {
 	public String mappings = "mojmap_parchment";
 	public String[] versions = new String[0];
 	public boolean refresh = false;
+	public boolean neoform = false;
 }

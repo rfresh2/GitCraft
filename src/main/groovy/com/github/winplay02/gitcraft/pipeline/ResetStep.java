@@ -40,6 +40,7 @@ public class ResetStep extends Step {
 			Path remappedPath = GitCraft.STEP_REMAP.getInternalArtifactPath(mcVersion, mappingFlavour);
 			Path unpickedPath = GitCraft.STEP_UNPICK.getInternalArtifactPath(mcVersion, mappingFlavour);
 			Path decompiledPath = GitCraft.STEP_DECOMPILE.getInternalArtifactPath(mcVersion, mappingFlavour);
+			Path neoFormPath = GitCraft.STEP_NEOFORM.getInternalArtifactPath(mcVersion, mappingFlavour);
 			// Datagen does not really need to be reset; The results should never change
 			//Path artifactsRoot = GitCraft.STEP_FETCH_ARTIFACTS.getInternalArtifactPath(mcVersion, mappingFlavour);
 			//Path datagenSnbtPath = GitCraft.STEP_DATAGEN.getDatagenSNBTArchive(artifactsRoot);
@@ -63,6 +64,10 @@ public class ResetStep extends Step {
 			if (Files.exists(decompiledPath)) {
 				Files.delete(decompiledPath);
 				MiscHelper.println("%s (%s, %s, decompiled) has been deleted", decompiledPath, mcVersion.launcherFriendlyVersionName(), mappingFlavour);
+			}
+			if (Files.exists(neoFormPath)) {
+				Files.delete(neoFormPath);
+				MiscHelper.println("%s (%s, %s, neoform) has been deleted", neoFormPath, mcVersion.launcherFriendlyVersionName(), mappingFlavour);
 			}
 		}
 		if (repo == null) { // do not refresh repo, when no-repo is set

@@ -58,7 +58,7 @@ public class ParchmentMappings extends Mapping {
 		}
 		Files.deleteIfExists(mappingsPath);
 		String parchmentLatestReleaseVersionBuild = getLatestReleaseVersionParchmentBuild(mcVersion);
-		Path mappingsFileJson = GitCraftPaths.MAPPINGS.resolve(String.format("%s-parchment-%s-%s.json", mcVersion.launcherFriendlyVersionName(), mcVersion.launcherFriendlyVersionName(), parchmentLatestReleaseVersionBuild));
+		Path mappingsFileJson = getParchmentJsonPath(mcVersion);
 		Step.StepResult downloadResult = null;
 		if (!Files.exists(mappingsFileJson)) {
 			Path mappingsFileJar = GitCraftPaths.MAPPINGS.resolve(String.format("%s-parchment-%s-%s.jar", mcVersion.launcherFriendlyVersionName(), mcVersion.launcherFriendlyVersionName(), parchmentLatestReleaseVersionBuild));
@@ -106,6 +106,13 @@ public class ParchmentMappings extends Mapping {
 			mappingTree.accept(sourceNsSwitch);
 		}
 		return Step.StepResult.merge(downloadResult, mojmapResult, Step.StepResult.SUCCESS);
+	}
+
+	/**
+	 * Raw parchment data (parchment.json), extracted by {@link #prepareMappings(OrderedVersion)}
+	 */
+	public Path getParchmentJsonPath(OrderedVersion mcVersion) {
+		return GitCraftPaths.MAPPINGS.resolve(String.format("%s-parchment-%s-%s.json", mcVersion.launcherFriendlyVersionName(), mcVersion.launcherFriendlyVersionName(), getLatestReleaseVersionParchmentBuild(mcVersion)));
 	}
 
 	@Override

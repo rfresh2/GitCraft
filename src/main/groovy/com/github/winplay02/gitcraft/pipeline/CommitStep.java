@@ -15,11 +15,7 @@ import com.google.gson.JsonSyntaxException;
 import groovy.lang.Tuple2;
 import net.fabricmc.loom.util.FileSystemUtil;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.lib.Constants;
-import org.eclipse.jgit.lib.ObjectId;
-import org.eclipse.jgit.lib.PersonIdent;
-import org.eclipse.jgit.lib.Ref;
-import org.eclipse.jgit.lib.RefUpdate;
+import org.eclipse.jgit.lib.*;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
 
@@ -28,16 +24,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.time.OffsetDateTime;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.NavigableSet;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.TimeZone;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.stream.StreamSupport;
 
 public class CommitStep extends Step {
@@ -208,13 +195,20 @@ public class CommitStep extends Step {
 	}
 
 	private void copyCode(PipelineCache pipelineCache, OrderedVersion mcVersion, RepoWrapper repo) throws IOException {
-		Path decompiledJarPath = pipelineCache.getForKey(Step.STEP_DECOMPILE);
+		// NeoForm output takes precedence, if NeoForm was used for this version
+		Path decompiledJarPath = pipelineCache.getForKey(Step.STEP_NEOFORM);
+		if (decompiledJarPath == null) {
+			decompiledJarPath = pipelineCache.getForKey(Step.STEP_DECOMPILE);
+		}
 		if (decompiledJarPath == null) {
 			MiscHelper.panic("A decompiled JAR for version %s does not exist", mcVersion.launcherFriendlyVersionName());
 		}
+		Path javaRoot = repo.getRootPath().resolve("src").resolve("main").resolve("java");
 		try (FileSystemUtil.Delegate fs = FileSystemUtil.getJarFileSystem(decompiledJarPath)) {
-			MiscHelper.copyLargeDir(fs.get().getPath("."), repo.getRootPath().resolve("src").resolve("main").resolve("java"));
-			Files.move(repo.getRootPath().resolve("src").resolve("main").resolve("java").resolve("dependencies.json"), repo.getRootPath().resolve("dependencies.json"), StandardCopyOption.REPLACE_EXISTING);
+			MiscHelper.copyLargeDir(fs.get().getPath("."), javaRoot);
+			Files.move(javaRoot.resolve("dependencies.json"), repo.getRootPath().resolve("dependencies.json"), StandardCopyOption.REPLACE_EXISTING);
+			// only used by the gradle setup step
+			Files.deleteIfExists(javaRoot.resolve(NeoFormStep.NEOFORM_LIBRARIES_FILE));
 		}
 	}
 

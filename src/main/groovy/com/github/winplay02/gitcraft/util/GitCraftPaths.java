@@ -27,6 +27,7 @@ public class GitCraftPaths {
 	protected static Path LEGACY_METADATA_STORE = null;
 	protected static Path GITCRAFT_VERSION_INFO = null;
 	public static Path GRADLE_SETUP = null;
+	public static Path NEOFORM = null;
 
 	public static Path lookupCurrentWorkingDirectory() throws IOException {
 		return Paths.get(new File(".").getCanonicalPath());
@@ -52,6 +53,7 @@ public class GitCraftPaths {
 		LEGACY_METADATA_STORE = MAIN_ARTIFACT_STORE.resolve("metadata.json");
 		GITCRAFT_VERSION_INFO = MAIN_ARTIFACT_STORE.resolve("gitcraft-version.txt");
 		GRADLE_SETUP = MAIN_ARTIFACT_STORE.resolve("gradle-setup");
+		NEOFORM = MAIN_ARTIFACT_STORE.resolve("neoform");
 		// Warning for breaking changes (the only breaking changes for now)
 		Files.createDirectories(MAIN_ARTIFACT_STORE);
 		upgradeExisting();
@@ -66,6 +68,7 @@ public class GitCraftPaths {
 		Files.createDirectories(ASSETS_OBJECTS);
 		Files.createDirectories(SOURCE_EXTRA_VERSIONS);
 		Files.createDirectories(GRADLE_SETUP);
+		Files.createDirectories(NEOFORM);
 		MiscHelper.tryJavaExecution();
 	}
 

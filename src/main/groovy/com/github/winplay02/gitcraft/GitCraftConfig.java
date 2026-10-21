@@ -54,6 +54,11 @@ public class GitCraftConfig {
 	public MappingFlavour usedMapping = MappingFlavour.MOJMAP;
 	public MappingFlavour[] fallbackMappings = null;
 
+	/// NeoForm settings
+	public boolean useNeoForm = false;
+	/// Min. heap for NeoForm's decompiler. NFRT only gives it 256M per core (min. 4G), which is not enough for e.g. 1.21.11 on 16 cores
+	public int neoFormDecompilerMinMemoryMb = 8192;
+
 	/// Version settings
 	public boolean onlyStableReleases = true;
 	public boolean onlySnapshots = false;
@@ -65,6 +70,12 @@ public class GitCraftConfig {
 
 	/// Mapping quirks
 	public static final String MIN_SUPPORTED_FABRIC_LOADER = "0.16.14";
+
+	/// NeoForm
+	public static final String NEOFORGED_MAVEN = "https://maven.neoforged.net/releases";
+	public static final String NEOFORM_MAVEN_METADATA = NEOFORGED_MAVEN + "/net/neoforged/neoform/maven-metadata.xml";
+	public static final String NEOFORM_RUNTIME_VERSION = "2.0.31";
+	public static final String NEOFORM_PARCHMENT_CONFLICT_PREFIX = "p_";
 
 	public static final SemanticVersion INTERMEDIARY_MAPPINGS_START_VERSION, YARN_MAPPINGS_START_VERSION, YARN_CORRECTLY_ORIENTATED_MAPPINGS_VERSION, PARCHMENT_START_VERSION;
 	public static final SemanticVersion NON_OBFUSCATED_START_VERSION;
@@ -164,6 +175,9 @@ public class GitCraftConfig {
 		MiscHelper.println("Mappings used: %s", usedMapping);
 		if (fallbackMappings != null && fallbackMappings.length > 0) {
 			MiscHelper.println("Mappings used as fallback: %s", Arrays.stream(fallbackMappings).map(Object::toString).collect(Collectors.joining(", ")));
+		}
+		if (useNeoForm) {
+			MiscHelper.println("NeoForm is enabled: sources are produced by NeoForm (recompilable) where a NeoForm release exists, otherwise by the regular decompiler");
 		}
 		if (overrideRepositoryPath != null) {
 			MiscHelper.println("Repository path is overridden. This may lead to various errors (see help). Proceed with caution. Target: %s", overrideRepositoryPath);

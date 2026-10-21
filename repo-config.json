@@ -6,6 +6,7 @@
 	"no_datagen_report": true,
 	"override_repo_target": "/mnt/nvme2/code/mcSrc",
 	"mappings": "mojmap_parchment",
+	"neoform": true,
 	"versions": [
 		"1.19.2",
 		"1.19.4",

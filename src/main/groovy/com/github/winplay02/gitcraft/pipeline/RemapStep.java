@@ -41,7 +41,7 @@ public class RemapStep extends Step {
 
 	@Override
 	public boolean preconditionsShouldRun(PipelineCache pipelineCache, OrderedVersion mcVersion, MappingFlavour mappingFlavour, MinecraftVersionGraph versionGraph, RepoWrapper repo) {
-		return mcVersion.requiresRemapping() && super.preconditionsShouldRun(pipelineCache, mcVersion, mappingFlavour, versionGraph, repo);
+		return mcVersion.requiresRemapping() && !GitCraft.STEP_NEOFORM.appliesTo(mcVersion, mappingFlavour) && super.preconditionsShouldRun(pipelineCache, mcVersion, mappingFlavour, versionGraph, repo);
 	}
 
 	@Override

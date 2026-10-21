@@ -17,14 +17,7 @@ import org.eclipse.jgit.revwalk.filter.RevFilter;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.time.Duration;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 public abstract class Step {
 
@@ -51,6 +44,8 @@ public abstract class Step {
 	protected static final String STEP_COMMIT = "Commit";
 
 	protected static final String STEP_GRADLE_SETUP = "Gradle Setup";
+
+	protected static final String STEP_NEOFORM = "NeoForm";
 
 	public enum StepResult implements Comparator<StepResult> {
 

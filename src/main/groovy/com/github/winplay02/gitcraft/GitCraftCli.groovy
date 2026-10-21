@@ -1,6 +1,7 @@
 package com.github.winplay02.gitcraft
 
 import com.github.winplay02.gitcraft.mappings.MappingFlavour
+import com.github.winplay02.gitcraft.pipeline.NeoFormStep
 import com.github.winplay02.gitcraft.types.RepoConfig
 import com.github.winplay02.gitcraft.util.MiscHelper
 import com.google.gson.GsonBuilder
@@ -55,6 +56,7 @@ class GitCraftCli {
 			'Changes the location of the target repository, as repo names may get quite long and unintuitive. If not used carefully, this can lead to repositories with unwanted mixed mappings or straight up refuse to work as some versions in the target repository may be missing.');
         cli_args._(longOpt: 'create-version-branches', 'Creates a separate branch for each version, including linear versions. This may be useful for quickly switching between multiple versions.')
         cli_args._(longOpt: 'create-stable-version-branches', 'Creates a separate branch for each stable linear version. This may be useful for quickly switching between multiple versions.')
+		cli_args._(longOpt: 'neoform', 'Uses NeoForm (https://github.com/neoforged/NeoForm) to produce recompilable sources. Only supports mojmap and mojmap_parchment mappings. Versions without a NeoForm release (anything before 1.20.2 / 23w31a) fall back to the regular decompiler.')
 		cli_args._(longOpt: 'sort-json', 'Sorts JSON objects contained in JSON files (e.g. models, language files, ...) in natural order. This is disabled by default as it modifies original data.')
 		cli_args.h(longOpt: 'help', 'Displays this help screen');
 		return cli_args;
@@ -83,6 +85,7 @@ class GitCraftCli {
 					config.overrideRepositoryPath = Path.of(repoConfig.override_repo_target).toAbsolutePath()
 				}
 				config.refreshDecompilation = repoConfig.refresh
+				config.useNeoForm = repoConfig.neoform
 				if (config.onlyStableReleases && config.onlySnapshots) {
 					MiscHelper.panic("ERROR: Excluding both stable releases and snapshots would lead to doing nothing");
 				}
@@ -100,6 +103,7 @@ class GitCraftCli {
 			config.createVersionBranches = cli_args_parsed.hasOption("create-version-branches");
 			config.createStableVersionBranches = cli_args_parsed.hasOption("create-stable-version-branches");
 			config.sortJsonObjects = cli_args_parsed.hasOption("sort-json");
+			config.useNeoForm = cli_args_parsed.hasOption("neoform");
 			if (cli_args_parsed.hasOption("help")) {
 				cli_args.usage();
 				return null;
@@ -150,6 +154,9 @@ class GitCraftCli {
 			if (config.onlyStableReleases && config.onlySnapshots) {
 				MiscHelper.panic("ERROR: Excluding both stable releases and snapshots would lead to doing nothing");
 			}
+		}
+		if (config.useNeoForm && !NeoFormStep.supportsMappings(config.usedMapping)) {
+			MiscHelper.panic("ERROR: NeoForm only supports mojmap and mojmap_parchment mappings, not %s", config.usedMapping);
 		}
 		/// Print Info
 		config.printConfigInformation();

@@ -5,11 +5,7 @@ import com.github.winplay02.gitcraft.MinecraftVersionGraph;
 import com.github.winplay02.gitcraft.mappings.MappingFlavour;
 import com.github.winplay02.gitcraft.types.Artifact;
 import com.github.winplay02.gitcraft.types.OrderedVersion;
-import com.github.winplay02.gitcraft.util.FFNIODirectoryResultSaver;
-import com.github.winplay02.gitcraft.util.GitCraftPaths;
-import com.github.winplay02.gitcraft.util.MiscHelper;
-import com.github.winplay02.gitcraft.util.RepoWrapper;
-import com.github.winplay02.gitcraft.util.SerializationHelper;
+import com.github.winplay02.gitcraft.util.*;
 import net.fabricmc.fernflower.api.IFabricJavadocProvider;
 import net.fabricmc.loom.api.decompilers.JavadocStyle;
 import net.fabricmc.loom.decompilers.vineflower.TinyJavadocProvider;
@@ -23,12 +19,7 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -52,6 +43,12 @@ public class DecompileStep extends Step {
 	@Override
 	protected Path getInternalArtifactPath(OrderedVersion mcVersion, MappingFlavour mappingFlavour) {
 		return this.rootPath.resolve(String.format("%s-%s.jar", mcVersion.launcherFriendlyVersionName(), mappingFlavour.toString()));
+	}
+
+	@Override
+	public boolean preconditionsShouldRun(PipelineCache pipelineCache, OrderedVersion mcVersion, MappingFlavour mappingFlavour, MinecraftVersionGraph versionGraph, RepoWrapper repo) {
+		// NeoForm produces the sources instead
+		return !GitCraft.STEP_NEOFORM.appliesTo(mcVersion, mappingFlavour) && super.preconditionsShouldRun(pipelineCache, mcVersion, mappingFlavour, versionGraph, repo);
 	}
 
 	private static final PrintStream NULL_IS = new PrintStream(OutputStream.nullOutputStream());
@@ -129,7 +126,7 @@ public class DecompileStep extends Step {
 		return StepResult.SUCCESS;
 	}
 
-	private static void writeLibraries(Path parentDirectory, OrderedVersion mcVersion) throws IOException {
+	static void writeLibraries(Path parentDirectory, OrderedVersion mcVersion) throws IOException {
 		Path p = parentDirectory.resolve("dependencies.json");
 
 		List<Artifact.DependencyArtifact> c = Stream.concat(

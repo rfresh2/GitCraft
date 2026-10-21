@@ -5,12 +5,14 @@ import com.github.winplay02.gitcraft.mappings.MappingFlavour;
 import com.github.winplay02.gitcraft.types.OrderedVersion;
 import com.github.winplay02.gitcraft.util.GitCraftPaths;
 import com.github.winplay02.gitcraft.util.RepoWrapper;
+import net.fabricmc.loom.util.FileSystemUtil;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.stream.Collectors;
 
 public class GradleSetupStep extends Step {
 
@@ -34,7 +36,13 @@ public class GradleSetupStep extends Step {
 		copyGradleResource("settings.gradle.kts", rootPath.resolve("settings.gradle.kts"));
 		copyGradleResource("gradlew.bat", rootPath.resolve("gradlew.bat"));
 		copyGradleResource("gradlew", rootPath.resolve("gradlew"));
-		copyGradleResource("build.gradle.kts", rootPath.resolve("build.gradle.kts"));
+		Path neoFormSources = pipelineCache.getForKey(STEP_NEOFORM);
+		if (neoFormSources != null) {
+			copyGradleResource("build-neoform.gradle.kts", rootPath.resolve("build.gradle.kts"));
+			replaceInFile(rootPath.resolve("build.gradle.kts"), "${neoform_dependencies}", readNeoFormDependencies(neoFormSources));
+		} else {
+			copyGradleResource("build.gradle.kts", rootPath.resolve("build.gradle.kts"));
+		}
 		copyGradleResource("gitignore", rootPath.resolve(".gitignore"));
 		copyGradleResource("gradle/wrapper/gradle-wrapper.properties", rootPath.resolve("gradle").resolve("wrapper").resolve("gradle-wrapper.properties"));
 		copyGradleResource("gradle/wrapper/gradle-wrapper.jar", rootPath.resolve("gradle").resolve("wrapper").resolve("gradle-wrapper.jar"));
@@ -43,6 +51,20 @@ public class GradleSetupStep extends Step {
 		replaceInFile(rootPath.resolve("gradle.properties"), "${minecraft_version}", mcVersion.launcherFriendlyVersionName());
 		replaceInFile(rootPath.resolve("gradle.properties"), "${java_version}", String.valueOf(mcVersion.javaVersion()));
 		return StepResult.SUCCESS;
+	}
+
+	private static String readNeoFormDependencies(Path neoFormSources) throws IOException {
+		try (FileSystemUtil.Delegate fs = FileSystemUtil.getJarFileSystem(neoFormSources)) {
+			Path librariesFile = fs.get().getPath(NeoFormStep.NEOFORM_LIBRARIES_FILE);
+			if (!Files.exists(librariesFile)) {
+				return "";
+			}
+			return Files.readAllLines(librariesFile).stream()
+				.map(String::trim)
+				.filter(line -> !line.isEmpty())
+				.map(library -> String.format("\timplementation(\"%s\")", library))
+				.collect(Collectors.joining("\n"));
+		}
 	}
 
 	protected Path getInternalArtifactPath(OrderedVersion mcVersion, MappingFlavour mappingFlavour) {

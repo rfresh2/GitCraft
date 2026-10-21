@@ -10,6 +10,7 @@ I have made a few changes for my own needs:
   * not compilable but lets you import it with dependencies in an IDE
 * Configuration through json instead of CLI args (very basic, does not cover all options)
   * `./gradlew run --args="--repo-config=repo-config.json"` (my personal config, change it for yourself as you see fit)
+* Optional [NeoForm](https://github.com/neoforged/NeoForm) mode for recompilable MC output
 * Updated a few defaults
 
 ## Alternatives
@@ -101,6 +102,13 @@ Options:
                                separate branches. The repository will be stored
                                in minecraft-repo-min-<version>. The normal
                                repository will not be touched.
+      --neoform              Uses NeoForm
+                               (https://github.com/neoforged/NeoForm) to
+                               produce recompilable sources. Only supports
+                               mojmap and mojmap_parchment mappings. Versions
+                               without a NeoForm release (anything before
+                               1.20.2 / 23w31a) fall back to the regular
+                               decompiler.
       --no-assets            Disables assets versioning (includes external
                                assets)
       --no-datagen-report    Disables datagen for versioning reports (like
