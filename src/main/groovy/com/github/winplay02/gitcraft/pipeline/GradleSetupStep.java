@@ -1,5 +1,6 @@
 package com.github.winplay02.gitcraft.pipeline;
 
+import com.github.winplay02.gitcraft.GitCraftConfig;
 import com.github.winplay02.gitcraft.MinecraftVersionGraph;
 import com.github.winplay02.gitcraft.mappings.MappingFlavour;
 import com.github.winplay02.gitcraft.types.OrderedVersion;
@@ -40,6 +41,8 @@ public class GradleSetupStep extends Step {
 		if (neoFormSources != null) {
 			copyGradleResource("build-neoform.gradle.kts", rootPath.resolve("build.gradle.kts"));
 			replaceInFile(rootPath.resolve("build.gradle.kts"), "${neoform_dependencies}", readNeoFormDependencies(neoFormSources));
+			replaceInFile(rootPath.resolve("build.gradle.kts"), "${neoform_runtime_version}", GitCraftConfig.NEOFORM_RUNTIME_VERSION);
+			copyGradleResource("gradle/log4j2.xml", rootPath.resolve("gradle").resolve("log4j2.xml"));
 		} else {
 			copyGradleResource("build.gradle.kts", rootPath.resolve("build.gradle.kts"));
 		}

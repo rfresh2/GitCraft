@@ -218,6 +218,8 @@ public class CommitStep extends Step {
 			MiscHelper.panic("Gradle setup artifacts path does not exist", mcVersion.launcherFriendlyVersionName());
 		}
 		MiscHelper.copyLargeDir(gradleSetupPath, repo.getRootPath());
+		// copying does not keep file permissions, the wrapper script needs to stay executable
+		repo.getRootPath().resolve("gradlew").toFile().setExecutable(true, false);
 	}
 
 	private void copyAssets(PipelineCache pipelineCache, OrderedVersion mcVersion, RepoWrapper repo) throws IOException {
