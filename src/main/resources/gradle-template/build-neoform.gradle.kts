@@ -243,5 +243,9 @@ val runServer = tasks.register<JavaExec>("runServer") {
 	standardInput = System.`in`
 	doFirst {
 		workingDir.mkdirs()
+		val eulaFile = workingDir.resolve("eula.txt");
+		if (!eulaFile.exists()) {
+			eulaFile.writeText("eula=true")
+		}
 	}
 }
